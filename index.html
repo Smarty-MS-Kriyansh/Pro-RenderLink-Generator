@@ -113,20 +113,20 @@ footer{
 </style>
 </head>
 <body>
-<h1>Pro Render Link Generator</h1>
+<h1>PRO RENDER LINK GENERATOR📡</h1>
 <h3>Made By: Smarty MS🙃</h3>
 <input id="urlInput" type="text" placeholder="Paste Your CroudFront M3u8 URL Link Here😙">
-<button id="generateBtn" onclick="generate()">Generate Now</button>
-<button id="copyBtn" onclick="copyLink()">Copy Now</button>
-<button id="refreshBtn" onclick="location.reload()">Refresh Site</button>
-<button id="backBtn" onclick="backDefault()">Back</button>
+<button id="generateBtn" onclick="generate()">GENERATE NOW</button>
+<button id="copyBtn" onclick="copyLink()">COPY NOW</button>
+<button id="refreshBtn" onclick="location.reload()">REFRESH SITE</button>
+<button id="backBtn" onclick="backDefault()">BACK</button>
 <div id="loader">Checking link stability...</div>
 <div id="output"></div>
 
 <div id="popup">
   <div class="popup-box">
     <p id="popupMsg"></p>
-    <button onclick="closePopup()">OK</button>
+    <button onclick="closePopup()">OK🙃</button>
   </div>
 </div>
 
@@ -188,7 +188,7 @@ async function generate(){
   localStorage.setItem(linkStorageKey, finalLink);
   localStorage.setItem(linkTimestampKey, Date.now());
 
-  output.innerHTML = `✅ Stable Render Link:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
+  output.innerHTML = `✅ STABLE RENDER LINK:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
   showPopup("Your Pro Render Link is Generated Successfully🥳");
 }
 
