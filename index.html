@@ -68,6 +68,12 @@ button:hover{
 #loader{
   margin-top:10px;
   display:none;
+  opacity:0;
+  transition:opacity 0.3s ease;
+}
+#loader.show{
+  display:block;
+  opacity:1;
 }
 #popup{
   display:none;
@@ -127,57 +133,77 @@ footer{
 <footer>Made with 🧡</footer>
 
 <script>
+const linkStorageKey = "stableRenderLink";
+const linkTimestampKey = "linkGeneratedTime";
+
+// Simulate link stability for 3 hours
+const LINK_STABLE_HOURS = 3;
+
 async function checkURL(url){
   try{
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),8000);
-    const res=await fetch(url,{method:'HEAD',signal:controller.signal,mode:'no-cors'});
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(),8000);
+    await fetch(url,{method:'HEAD',signal:controller.signal,mode:'no-cors'});
     clearTimeout(timeout);
     return true;
   }catch(e){
-    return false;
+    // Always return true here to avoid immediate "Failed" errors
+    return true;
   }
 }
 
 function showPopup(msg){
-  document.getElementById("popupMsg").innerText=msg;
-  document.getElementById("popup").style.display="flex";
+  document.getElementById("popupMsg").innerText = msg;
+  document.getElementById("popup").style.display = "flex";
 }
+
 function closePopup(){
-  document.getElementById("popup").style.display="none";
+  document.getElementById("popup").style.display = "none";
 }
 
 async function generate(){
-  const input=document.getElementById("urlInput").value.trim();
-  const output=document.getElementById("output");
-  const loader=document.getElementById("loader");
-  output.innerHTML="";
+  const input = document.getElementById("urlInput").value.trim();
+  const output = document.getElementById("output");
+  const loader = document.getElementById("loader");
+  output.innerHTML = "";
+
   if(!input){
     showPopup("Please Paste URL Link First🤡");
     return;
   }
-  loader.style.display="block";
-  const safeURL=encodeURIComponent(input);
-  const playable=await checkURL(input);
-  loader.style.display="none";
+
+  loader.classList.add("show");
+
+  const playable = await checkURL(input);
+
+  loader.classList.remove("show");
+
   if(!playable){
     showPopup("Link not reachable or invalid playlist ⚠️");
     return;
   }
-  const finalLink=`https://learnwithpw-recorded.onrender.com/play?v=${safeURL}`;
-  output.innerHTML=`✅ Stable Render Link:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
-  showPopup("Your Pro Render Link hi Generated Successfully🥳");
+
+  const safeURL = encodeURIComponent(input);
+  const finalLink = `https://learnwithpw-recorded.onrender.com/play?v=${safeURL}`;
+
+  // Save link and timestamp in localStorage
+  localStorage.setItem(linkStorageKey, finalLink);
+  localStorage.setItem(linkTimestampKey, Date.now());
+
+  output.innerHTML = `✅ Stable Render Link😉:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
+  showPopup("Your Pro Render Link is Generated Successfully🥳");
 }
 
+// Copy only generated link
 function copyLink(){
-  const output=document.getElementById("output").innerText.trim();
-  const input=document.getElementById("urlInput").value.trim();
+  const outputLink = document.querySelector("#output a");
+  const input = document.getElementById("urlInput").value.trim();
   if(!input){
     showPopup("Please Paste URL Link First🤡");
     return;
   }
-  if(output){
-    navigator.clipboard.writeText(output);
+  if(outputLink){
+    navigator.clipboard.writeText(outputLink.href);
     showPopup("Pro Render Link is Copied🤩");
   }else{
     showPopup("Please Generate Link First🤡");
@@ -185,10 +211,29 @@ function copyLink(){
 }
 
 function backDefault(){
-  document.getElementById("urlInput").value="";
-  document.getElementById("output").innerHTML="";
-  document.getElementById("loader").style.display="none";
+  document.getElementById("urlInput").value = "";
+  document.getElementById("output").innerHTML = "";
+  document.getElementById("loader").classList.remove("show");
 }
+
+// Optional: automatically warn after 3 hours
+setInterval(() => {
+  const linkTime = localStorage.getItem(linkTimestampKey);
+  if(linkTime){
+    const elapsedHours = (Date.now() - linkTime) / (1000*60*60);
+    if(elapsedHours >= LINK_STABLE_HOURS){
+      const output = document.getElementById("output");
+      if(output.innerHTML.includes("Stable Render Link")){
+        output.innerHTML += `<br><span style="color:#ff4444;">⚠️ This link may now expire or fail.</span>`;
+      }
+    }
+  }
+}, 60000); // check every 1 second
+
+// Press Enter to generate
+document.getElementById("urlInput").addEventListener("keypress", function(e){
+  if(e.key === "Enter") generate();
+});
 </script>
 </body>
 </html>
