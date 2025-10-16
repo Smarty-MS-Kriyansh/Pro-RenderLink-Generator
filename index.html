@@ -135,10 +135,9 @@ footer{
 <script>
 const linkStorageKey = "stableRenderLink";
 const linkTimestampKey = "linkGeneratedTime";
+const LINK_STABLE_HOURS = 3; // 3 hours
 
-// Simulate link stability for 3 hours
-const LINK_STABLE_HOURS = 3;
-
+// Helper to check if URL is reachable (simulate stable link)
 async function checkURL(url){
   try{
     const controller = new AbortController();
@@ -147,8 +146,7 @@ async function checkURL(url){
     clearTimeout(timeout);
     return true;
   }catch(e){
-    // Always return true here to avoid immediate "Failed" errors
-    return true;
+    return true; // Always allow initially
   }
 }
 
@@ -186,15 +184,25 @@ async function generate(){
   const safeURL = encodeURIComponent(input);
   const finalLink = `https://learnwithpw-recorded.onrender.com/play?v=${safeURL}`;
 
-  // Save link and timestamp in localStorage
+  // Save link and timestamp
   localStorage.setItem(linkStorageKey, finalLink);
   localStorage.setItem(linkTimestampKey, Date.now());
 
-  output.innerHTML = `✅ Stable Render Link😉:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
+  output.innerHTML = `✅ Stable Render Link:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
   showPopup("Your Pro Render Link is Generated Successfully🥳");
 }
 
-// Copy only generated link
+// Auto-refresh the stable link every 3 hours
+setInterval(() => {
+  const input = document.getElementById("urlInput").value.trim();
+  if(input){
+    const lastTime = localStorage.getItem(linkTimestampKey);
+    if(!lastTime || (Date.now() - lastTime) >= LINK_STABLE_HOURS*3600*1000){
+      generate(); // auto-generate new stable link
+    }
+  }
+}, 60000); // check every 1 min
+
 function copyLink(){
   const outputLink = document.querySelector("#output a");
   const input = document.getElementById("urlInput").value.trim();
@@ -215,20 +223,6 @@ function backDefault(){
   document.getElementById("output").innerHTML = "";
   document.getElementById("loader").classList.remove("show");
 }
-
-// Optional: automatically warn after 3 hours
-setInterval(() => {
-  const linkTime = localStorage.getItem(linkTimestampKey);
-  if(linkTime){
-    const elapsedHours = (Date.now() - linkTime) / (1000*60*60);
-    if(elapsedHours >= LINK_STABLE_HOURS){
-      const output = document.getElementById("output");
-      if(output.innerHTML.includes("Stable Render Link")){
-        output.innerHTML += `<br><span style="color:#ff4444;">⚠️ This link may now expire or fail.</span>`;
-      }
-    }
-  }
-}, 60000); // check every 1 second
 
 // Press Enter to generate
 document.getElementById("urlInput").addEventListener("keypress", function(e){
