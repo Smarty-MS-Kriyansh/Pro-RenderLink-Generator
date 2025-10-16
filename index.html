@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Render Link Generator</title>
+<style>
+body{
+  background:#0a0a0a;
+  color:#fff;
+  font-family:'Poppins',sans-serif;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+h1{
+  background:#007bff;
+  color:#fff;
+  padding:12px 25px;
+  border-radius:10px;
+  box-shadow:0 0 15px #007bffaa;
+  font-size:26px;
+  margin-bottom:10px;
+  text-align:center;
+}
+h3{
+  color:#ccc;
+  font-size:14px;
+  margin-top:-5px;
+  margin-bottom:25px;
+}
+input{
+  width:320px;
+  padding:12px;
+  border:none;
+  outline:none;
+  border-radius:10px;
+  margin-bottom:12px;
+  font-size:15px;
+  text-align:center;
+}
+button{
+  border:none;
+  color:#fff;
+  padding:10px 25px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+  margin:5px;
+}
+button:hover{
+  transform:scale(1.05);
+}
+#generateBtn{background:#28a745;}
+#copyBtn{background:#ff7f00;}
+#refreshBtn{background:#ff69b4;}
+#backBtn{background:#ff3333;}
+#output{
+  margin-top:20px;
+  word-break:break-all;
+  text-align:center;
+  font-size:14px;
+}
+#loader{
+  margin-top:10px;
+  display:none;
+}
+#popup{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  text-align:center;
+  z-index:10;
+}
+.popup-box{
+  background:#111;
+  border:2px solid #00ffcc;
+  border-radius:12px;
+  padding:20px 30px;
+  box-shadow:0 0 25px #00ffccaa;
+}
+.popup-box p{
+  font-size:16px;
+  margin-bottom:15px;
+}
+.popup-box button{
+  background:#00ffcc;
+  color:#000;
+}
+footer{
+  position:absolute;
+  bottom:10px;
+  font-size:14px;
+  color:#ff9900;
+}
+</style>
+</head>
+<body>
+<h1>Pro Render Link Generator</h1>
+<h3>Made By: Smarty MS🙃</h3>
+<input id="urlInput" type="text" placeholder="Paste Your CroudFront M3u8 URL Link Here😙">
+<button id="generateBtn" onclick="generate()">Generate Now</button>
+<button id="copyBtn" onclick="copyLink()">Copy Now</button>
+<button id="refreshBtn" onclick="location.reload()">Refresh Site</button>
+<button id="backBtn" onclick="backDefault()">Back</button>
+<div id="loader">Checking link stability...</div>
+<div id="output"></div>
+
+<div id="popup">
+  <div class="popup-box">
+    <p id="popupMsg"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<footer>Made with 🧡</footer>
+
+<script>
+async function checkURL(url){
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),8000);
+    const res=await fetch(url,{method:'HEAD',signal:controller.signal,mode:'no-cors'});
+    clearTimeout(timeout);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function showPopup(msg){
+  document.getElementById("popupMsg").innerText=msg;
+  document.getElementById("popup").style.display="flex";
+}
+function closePopup(){
+  document.getElementById("popup").style.display="none";
+}
+
+async function generate(){
+  const input=document.getElementById("urlInput").value.trim();
+  const output=document.getElementById("output");
+  const loader=document.getElementById("loader");
+  output.innerHTML="";
+  if(!input){
+    showPopup("Please Paste URL Link First🤡");
+    return;
+  }
+  loader.style.display="block";
+  const safeURL=encodeURIComponent(input);
+  const playable=await checkURL(input);
+  loader.style.display="none";
+  if(!playable){
+    showPopup("Link not reachable or invalid playlist ⚠️");
+    return;
+  }
+  const finalLink=`https://learnwithpw-recorded.onrender.com/play?v=${safeURL}`;
+  output.innerHTML=`✅ Stable Render Link:<br><a href="${finalLink}" target="_blank" style="color:#00ff99">${finalLink}</a>`;
+  showPopup("Your Pro Render Link hi Generated Successfully🥳");
+}
+
+function copyLink(){
+  const output=document.getElementById("output").innerText.trim();
+  const input=document.getElementById("urlInput").value.trim();
+  if(!input){
+    showPopup("Please Paste URL Link First🤡");
+    return;
+  }
+  if(output){
+    navigator.clipboard.writeText(output);
+    showPopup("Pro Render Link is Copied🤩");
+  }else{
+    showPopup("Please Generate Link First🤡");
+  }
+}
+
+function backDefault(){
+  document.getElementById("urlInput").value="";
+  document.getElementById("output").innerHTML="";
+  document.getElementById("loader").style.display="none";
+}
+</script>
+</body>
+</html>
